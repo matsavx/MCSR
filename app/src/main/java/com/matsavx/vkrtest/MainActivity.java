@@ -1,31 +1,28 @@
-package com.example.vkrtest;
+package com.matsavx.vkrtest;
 
-import                          androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.example.vkrtest.R;
 import com.example.vkrtest.databinding.ActivityMainBinding;
-import com.example.vkrtest.fragments.HomeFragment;
-import com.example.vkrtest.fragments.MapFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
-import com.yandex.mapkit.Animation;
+import com.matsavx.vkrtest.configures.ConfProperties;
+import com.matsavx.vkrtest.fragments.HomeFragment;
+import com.matsavx.vkrtest.fragments.MapFragment;
+import com.matsavx.vkrtest.fragments.SensorFragment;
 import com.yandex.mapkit.MapKitFactory;
-import com.yandex.mapkit.geometry.Point;
-import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.mapview.MapView;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MapView mapView;
     ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        MapKitFactory.setApiKey(ConfProperties.getProperty("yandex_api_key"));
         MapKitFactory.setApiKey("8d56adda-d18d-4724-b294-2b27e9ce5a6f");
         MapKitFactory.initialize(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -39,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.map_page_id:
                     replaceFragment(new MapFragment());
+                    break;
+                case R.id.sensor_page_id:
+                    replaceFragment(new SensorFragment());
                     break;
             }
             return true;

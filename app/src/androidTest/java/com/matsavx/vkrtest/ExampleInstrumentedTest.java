@@ -1,4 +1,4 @@
-package com.example.vkrtest;
+package com.matsavx.vkrtest;
 
 import android.content.Context;
 

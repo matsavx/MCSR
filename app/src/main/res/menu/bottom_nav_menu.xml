@@ -9,4 +9,8 @@
         android:id="@+id/map_page_id"
         android:title="Map" />
 
+    <item
+        android:id="@+id/sensor_page_id"
+        android:title="Sensor" />
+
 </menu>

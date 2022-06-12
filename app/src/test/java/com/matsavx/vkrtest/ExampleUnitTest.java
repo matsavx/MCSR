@@ -1,4 +1,4 @@
-package com.example.vkrtest;
+package com.matsavx.vkrtest;
 
 import org.junit.Test;
 

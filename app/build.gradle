@@ -5,7 +5,7 @@ plugins {
 android {
     defaultConfig {
         compileSdk 31
-        applicationId "com.example.vkrtest"
+        applicationId "com.matsavx.vkrtest"
         minSdk 28
         targetSdk 28
         versionCode 1

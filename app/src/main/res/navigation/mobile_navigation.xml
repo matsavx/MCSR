@@ -7,14 +7,20 @@
 
     <fragment
         android:id="@+id/home_page_id"
-        android:name="com.example.vkrtest.fragments.HomeFragment"
-        android:label="Main Page"
+        android:name="com.matsavx.vkrtest.fragments.HomeFragment"
+        android:label="Home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/map_page_id"
-        android:name="com.example.vkrtest.fragments.MapFragment"
-        android:label="Favorites"
+        android:name="com.matsavx.vkrtest.fragments.MapFragment"
+        android:label="Map"
         tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/sensor_page_id"
+        android:name="com.matsavx.vkrtest.fragments.SensorFragment"
+        android:label="Sensor"
+        tools:layout="@layout/fragment_sensor" />
 
 </navigation>

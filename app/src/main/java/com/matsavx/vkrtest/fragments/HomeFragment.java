@@ -1,4 +1,4 @@
-package com.example.vkrtest.fragments;
+package com.matsavx.vkrtest.fragments;
 
 import android.os.Bundle;
 
