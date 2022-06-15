@@ -1,6 +1,9 @@
 package com.matsavx.vkrtest.fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,13 +13,16 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vkrtest.R;
+import com.matsavx.vkrtest.database.DBHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,8 +46,12 @@ public class SensorFragment extends Fragment {
     private Sensor accelerometerSensor;
     private SensorEventListener accelerometerSensorEventListener;
     private int interval = 300;
-    private boolean flag = false;
+    private boolean flagg = false;
+    private boolean flaga = false;
     private Handler handler;
+    private boolean loopFlagA = false;
+    private boolean loopFlagG = false;
+    private float accelerometerCalibrateValueX = 0;
 
     public SensorFragment() {
         // Required empty public constructor
@@ -68,7 +78,8 @@ public class SensorFragment extends Fragment {
     private final Runnable processSensors = new Runnable() {
         @Override
         public void run() {
-            flag = true;
+            flagg = true;
+            flaga = true;
             handler.postDelayed(this, interval);
         }
     };
@@ -91,7 +102,12 @@ public class SensorFragment extends Fragment {
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         handler = new Handler();
 
+        DBHelper dbHelper = new DBHelper(getContext());
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
         TextView tvGX, tvGY, tvGZ, tvAX, tvAY, tvAZ, tvAResult, tvGResult;
+        Button btnCalibrateAccelerometer, btnClearSensorCounter;
         tvGX = view.findViewById(R.id.tvGX);
         tvGY = view.findViewById(R.id.tvGY);
         tvGZ = view.findViewById(R.id.tvGZ);
@@ -100,6 +116,8 @@ public class SensorFragment extends Fragment {
         tvAZ = view.findViewById(R.id.tvAZ);
         tvAResult = view.findViewById(R.id.tvAResult);
         tvGResult = view.findViewById(R.id.tvGResult);
+        btnCalibrateAccelerometer = view.findViewById(R.id.btnCalibrateAccelerometer);
+        btnClearSensorCounter = view.findViewById(R.id.btnClearSensorCounter);
 
         if (gyroscopeSensor == null) {
             Toast.makeText(getContext(), "The device has no gyroscope", Toast.LENGTH_SHORT).show();
@@ -111,24 +129,35 @@ public class SensorFragment extends Fragment {
             return view;
         }
 
-        final int[] count = {0};
+        final int[] countg = {0};
+        final int[] counta = {0};
+
+//        int gyroscopeValueX, gyroscopeValueY, gyroscopeValueZ;
 
         gyroscopeSensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
+//                if (flagg) {
+                    int gyroscopeValueX = (int)Math.toDegrees(event.values[0]);
+                    int gyroscopeValueY = (int)Math.toDegrees(event.values[1]);
+                    int gyroscopeValueZ = (int)Math.toDegrees(event.values[2]);
+                    tvGX.setText(String.valueOf(gyroscopeValueX));
+                    tvGY.setText(String.valueOf(gyroscopeValueY));
+                    tvGZ.setText(String.valueOf(gyroscopeValueZ));
 
-                if (flag) {
-                    tvGX.setText(String.valueOf((int)event.values[0]));
-                    tvGY.setText(String.valueOf((int)event.values[1]));
-                    tvGZ.setText(String.valueOf((int)event.values[2]));
-
-                    if (event.values[0] > 3 || event.values[1] > 3 || event.values[2] > 3) {
-                        count[0]++;
-                        tvGResult.setText("Считано неровностей " + count[0]);
+                    if ((gyroscopeValueX < 50 && gyroscopeValueX >= 0) || (gyroscopeValueX > -50 && gyroscopeValueX <= 0)) {
+                        loopFlagG = false;
                     }
 
-                    flag = false;
-                }
+                    if ((gyroscopeValueX > 50 || gyroscopeValueX < -50) && !loopFlagG) {
+                        countg[0]++;
+                        loopFlagG = true;
+                        tvGResult.setText("Считано неровностей " + countg[0]);
+                        contentValues.put(DBHelper.KEY_GYROSCOPE, gyroscopeValueX);
+                    }
+
+//                    flagg = false;
+//                }
 
             }
 
@@ -141,9 +170,25 @@ public class SensorFragment extends Fragment {
         accelerometerSensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                tvAX.setText(String.valueOf((int)event.values[0]));
-                tvAY.setText(String.valueOf((int)event.values[1]));
-                tvAZ.setText(String.valueOf((int)event.values[2]));
+                btnCalibrateAccelerometer.setOnClickListener(v -> accelerometerCalibrateValueX = event.values[2]);
+//                if (flaga) {
+                    tvAX.setText(String.valueOf((int)event.values[0]));
+                    tvAY.setText(String.valueOf((int)event.values[1]));
+                    tvAZ.setText(String.valueOf((int)(event.values[2]-accelerometerCalibrateValueX)));
+
+                    if ((event.values[2] < 2 && event.values[2]>=0) || (event.values[2] > -2 && event.values[2] <= 0)) {
+                        loopFlagA = false;
+                    }
+
+                    if ((event.values[2] > 2 || event.values[2] < -2) && !loopFlagA) {
+                        counta[0]++;
+                        loopFlagA = true;
+                        tvAResult.setText("Считано неровностей " + counta[0]);
+                        contentValues.put(DBHelper.KEY_ACCELEROMETER, (int)event.values[2]);
+                    }
+
+//                    flaga = false;
+//                }
             }
 
             @Override
@@ -151,6 +196,21 @@ public class SensorFragment extends Fragment {
 
             }
         };
+
+        btnClearSensorCounter.setOnClickListener(v -> {
+            Cursor cursor = database.query(DBHelper.TABLE_BUMPS, null, null,null,null,null,null);
+            if(cursor.moveToFirst()){
+                int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
+                int idA = cursor.getColumnIndex(DBHelper.KEY_ACCELEROMETER);
+                int idG = cursor.getColumnIndex(DBHelper.KEY_GYROSCOPE);
+                do{
+                    Log.d("mLog", "ID = " + cursor.getInt(idIndex)
+                            + ", acc = " + cursor.getInt(idA)
+                            + ", gyro = " + cursor.getInt(idG));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        });
         return view;
     }
 
