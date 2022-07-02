@@ -22,9 +22,15 @@
             android:layout_height="wrap_content"
             android:text="Clear sensor counter" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btnInsertDB"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="DB" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="192dp"
             android:orientation="vertical"
             android:padding="50dp">
 
@@ -60,7 +66,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="287dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="50dp">
 
@@ -92,6 +98,16 @@
                 android:text="TextView"
                 android:textSize="20sp" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/dbAcc"
+            android:layout_width="match_parent"
+            android:layout_height="55dp" />
+
+        <TextView
+            android:id="@+id/dbGyr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
