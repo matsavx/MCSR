@@ -17,8 +17,55 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="12dp"
             android:layout_marginBottom="317dp"
-            android:background="@drawable/rounded_button"
+            android:background="@drawable/rounded_button_location"
             android:src="@drawable/set_camera_location" />
+
+        <ImageButton
+            android:id="@+id/btnCancelDriving"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="53dp"
+            android:layout_marginEnd="14dp"
+            android:background="@drawable/rounded_button_cancel"
+            app:srcCompat="@drawable/cancel_driving" />
+
+        <LinearLayout
+            android:layout_width="314dp"
+            android:layout_height="47dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="52dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvAccMap"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tvGyrMap"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnSensorOn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="236dp"
+            android:background="@drawable/rounded_button_location"
+            app:srcCompat="@drawable/sensor_button" />
+
     </com.yandex.mapkit.mapview.MapView>
     <LinearLayout
         android:layout_width="match_parent"

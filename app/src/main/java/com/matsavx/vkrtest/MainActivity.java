@@ -10,6 +10,7 @@ import com.matsavx.vkrtest.fragments.HomeFragment;
 import com.matsavx.vkrtest.fragments.MapFragment;
 import com.matsavx.vkrtest.fragments.SensorFragment;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.directions.DirectionsFactory;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 //        MapKitFactory.setApiKey(ConfProperties.getProperty("yandex_api_key"));
         MapKitFactory.setApiKey("8d56adda-d18d-4724-b294-2b27e9ce5a6f");
         MapKitFactory.initialize(this);
+//        DirectionsFactory.initialize(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());
