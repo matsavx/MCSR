@@ -66,6 +66,17 @@
             android:background="@drawable/rounded_button_location"
             app:srcCompat="@drawable/sensor_button" />
 
+        <ImageButton
+            android:id="@+id/btnCalibrateSensors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="155dp"
+            android:background="@drawable/rounded_button_cancel"
+            app:srcCompat="@drawable/calibrate_btn" />
+
     </com.yandex.mapkit.mapview.MapView>
     <LinearLayout
         android:layout_width="match_parent"
