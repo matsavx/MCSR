@@ -91,6 +91,6 @@
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:maxLines="1"
-            android:text="Нажмите, чтобы ввести адрес"/>
+            android:text="@string/str_map_search_text"/>
     </LinearLayout>
 </RelativeLayout>

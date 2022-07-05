@@ -5,13 +5,13 @@
         android:id="@+id/home_page_id"
         android:icon="@drawable/info_nav"
         android:textAlignment="center"
-        android:title="О приложении" />
+        android:title="@string/str_home_navitem_title" />
 
     <item
         android:id="@+id/map_page_id"
         android:icon="@drawable/map_nav"
         android:textAlignment="center"
-        android:title="Карта неровностей" />
+        android:title="@string/str_map_navitem_title" />
 
 <!--    <item-->
 <!--        android:id="@+id/sensor_page_id"-->

@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="0dp"
         android:layout_marginTop="16dp"
-        android:text="Здравствуйте!"
+        android:text="@string/str_home_hello"
         android:textAlignment="center"
         android:textSize="24sp" />
 
@@ -27,7 +27,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="69dp"
-        android:text="Вас приветствует приложение для мониторинга актуального состояния автодорог. Приложение может использоваться как обычный навигатор по местности. Приложение использует датчики, установленные в Вашем смартфоне, такие как GPS, акселерометр и гироскоп. Так же приложение мжет запросить разрешение об использовании внутреннего накопителя. Всё это нужно для составления карты неровностей на Вашем смартфоне. Пользуйтесь в удовольствие!"
+        android:text="@string/str_home_text"
         android:textAlignment="textStart"
         android:textSize="14sp" />
 
@@ -44,14 +44,14 @@
             android:id="@+id/textView7"
             android:layout_width="match_parent"
             android:layout_height="99dp"
-            android:text="Используйте эту кнопку для включения режима считывания дорожных дефектов"
+            android:text="@string/str_home_sensor_btn_description"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/textView8"
             android:layout_width="match_parent"
             android:layout_height="117dp"
-            android:text="Нажмите на эту кнопку, когда убедитесь, что смарфон закреплен в надёжном положении"
+            android:text="@string/str_home_calibration_btn_description"
             android:textSize="14sp" />
     </LinearLayout>
 

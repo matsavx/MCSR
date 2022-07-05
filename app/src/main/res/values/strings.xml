@@ -9,5 +9,12 @@
     <string name="network_error_message">Ошибка сети</string>
     <string name="remote_error_message">Ошибка удаленного сервера</string>
     <string name="unknown_error_message">Неизвестная ошибка</string>
+    <string name="str_home_hello">Здравствуйте!</string>
+    <string name="str_home_text">Вас приветствует приложение для мониторинга актуального состояния автодорог. Приложение может использоваться как обычный навигатор по местности. Приложение использует датчики, установленные в Вашем смартфоне, такие как GPS, акселерометр и гироскоп. Так же приложение мжет запросить разрешение об использовании внутреннего накопителя. Всё это нужно для составления карты неровностей на Вашем смартфоне. Пользуйтесь в удовольствие!</string>
+    <string name="str_home_sensor_btn_description">Используйте эту кнопку для включения режима считывания дорожных дефектов</string>
+    <string name="str_home_calibration_btn_description">Нажмите на эту кнопку, когда убедитесь, что смарфон закреплен в надёжном положении</string>
+    <string name="str_map_search_text">Нажмите, чтобы ввести адрес</string>
+    <string name="str_home_navitem_title">О приложении</string>
+    <string name="str_map_navitem_title">Карта неровностей</string>
 
 </resources>
