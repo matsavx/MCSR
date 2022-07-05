@@ -9,15 +9,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -51,10 +50,12 @@ import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CameraUpdateReason;
+import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.Map;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
+import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.map.VisibleRegionUtils;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.search.Response;
@@ -83,6 +84,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -99,6 +102,10 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
+    private static final int BUMP_TYPE_YELLOW = 1;
+    private static final int BUMP_TYPE_ORANGE = 2;
+    private static final int BUMP_TYPE_RED = 3;
+
     private SearchManager searchManager;
     private Session searchSession;
     private EditText searchEdit;
@@ -114,9 +121,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
     private SensorEventListener accelerometerSensorEventListener;
     private float accelerometerCalibrateValueX = 0;
 
-    FileOutputStream outputStream;
-    FileWriter writer;
-
     private int interval = 500;
     private boolean flagg = false;
     private boolean flaga = false;
@@ -127,9 +131,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
 
     private ImageButton btnSetCameraLocation, btnCancelDriving, btnSensorOn, btnCalibrateSensors;
     private TextView tvAccMap, tvGyrMap;
-
-    private FileWriter fileWriter;
-    private FileReader fileReader;
 
 
     private final Runnable processSensors = new Runnable() {
@@ -143,7 +144,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
 
 
     public MapFragment() {
-        // Required empty public constructor
     }
 
     // TODO: Rename and change types and number of parameters
@@ -159,43 +159,26 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
         super.onCreate(savedInstanceState);
     }
 
-    public Bitmap drawRedBump() {
+    //Отрисовка метки определенного цвета
+    public Bitmap setBumpColor(int type) {
         int picSize = 20;
         Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
         Paint paint = new Paint();
-        paint.setColor(Color.RED);
+        if (type == 3)
+            paint.setColor(Color.RED);
+        if (type == 2)
+            paint.setColor(Color.rgb(219, 116, 20));
+        if (type == 1)
+            paint.setColor(Color.rgb(247, 255, 0));
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
         return bitmap;
     }
 
-    public Bitmap drawOrangeBump() {
-        int picSize = 20;
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
-        Paint paint = new Paint();
-        paint.setColor(Color.rgb(219, 116, 20));
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
-        return bitmap;
-    }
-
-    public Bitmap drawYellowBump() {
-        int picSize = 20;
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
-        Paint paint = new Paint();
-        paint.setColor(Color.rgb(247, 255, 0));
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
-        return bitmap;
-    }
-
+    //Запрос на разрешение использования данных
     private void requestPermission() {
+        //Использование местоположния
         if (ContextCompat.checkSelfPermission(getContext(),
                 "android.permission.ACCESS_FINE_LOCATION")
                 != PackageManager.PERMISSION_GRANTED) {
@@ -203,32 +186,28 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                     new String[]{"android.permission.ACCESS_FINE_LOCATION"},
                     PERMISSIONS_REQUEST_FINE_LOCATION);
         }
-
+        //Использование прав на внесение информации в хранилище данных
         if (ContextCompat.checkSelfPermission(getContext(),
                 "android.permission.WRITE_EXTERNAL_STORAGE")
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"},
-                    PERMISSIONS_REQUEST_FINE_LOCATION);
+                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
-
+        //Использование прав на чтение данных из хранилища
         if (ContextCompat.checkSelfPermission(getContext(),
                 "android.permission.READ_EXTERNAL_STORAGE")
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{"android.permission.READ_EXTERNAL_STORAGE"},
-                    PERMISSIONS_REQUEST_FINE_LOCATION);
+                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        requestPermission();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-//        writeFile();
-//        readFile();
+        requestPermission();
 
         handler = new Handler();
 
@@ -288,8 +267,7 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
         btnCalibrateSensors.setVisibility(View.INVISIBLE);
         btnCalibrateSensors.setActivated(false);
         btnSetCameraLocation.setOnClickListener(v->{
-//            userLocationLayer.cameraPosition();
-            moveCameraToPosition(userLocationLayer.cameraPosition().getTarget());
+        moveCameraToPosition(userLocationLayer.cameraPosition().getTarget());
 
         });
 
@@ -334,7 +312,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                         if ((event.values[2] < 2 && event.values[2] >= 0) || (event.values[2] > -2 && event.values[2] <= 0)) {
                             loopFlagA = false;
                         }
-
                         if ((event.values[2] > 2 || event.values[2] < -2) && !loopFlagA) {
                             loopFlagA = true;
                             sensorBump(event.values[2]);
@@ -357,28 +334,10 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
 
     private void writeFile(double latitude, double longitude, int type) {
         try {
-            /*
-             * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
-             * Обращение идёт, как и было сказано выше к внешнему накопителю
-             */
-//            File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + "bumps.txt");
-//            myFile.createNewFile();
-//            FileOutputStream outputStream = new FileOutputStream(myFile);
-
-//            outputStream = getActivity().openFileOutput("bumps.txt", Context.MODE_APPEND);
-//
-//            try {
-//                writer = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/" + "bumps.txt", true);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
             String latitudeStr = Double.toString(latitude);
             String longitudeStr = Double.toString(longitude);
             String typeStr = Integer.toString(type);
-            String text = "\n" + latitudeStr + "," + longitudeStr + "," + typeStr;// После чего создаем поток для записи
-//            writer.append(text);
-////            outputStream.write(text.getBytes());                            // и производим непосредственно запись
-//            outputStream.close();
+            String text = "\n" + latitudeStr + "," + longitudeStr + "," + typeStr;
 
             try {
                 FileWriter writer = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/" + "bumps.txt", true);
@@ -389,41 +348,21 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
             catch (IOException e) {
                 System.out.println(e);
             }
-            /*
-             * Вызов сообщения Toast не относится к теме.
-             * Просто для удобства визуального контроля исполнения метода в приложении
-             */
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void readFile() {
-        /*
-         * Аналогично создается объект файла
-         */
         File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + "bumps.txt");
         try {
             FileInputStream inputStream = new FileInputStream(myFile);
-            /*
-             * Буфферезируем данные из выходного потока файла
-             */
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            /*
-             * Класс для создания строк из последовательностей символов
-             */
-            StringBuilder stringBuilder = new StringBuilder();
             String line;
             try {
-                /*
-                 * Производим построчное считывание данных из файла в конструктор строки,
-                 * Псоле того, как данные закончились, производим вывод текста в TextView
-                 */
                 while ((line = bufferedReader.readLine()) != null){
                     drawBumps(line);
-//                    System.out.println(line);
                 }
-//                System.out.println(stringBuilder);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -433,8 +372,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
     }
 
     public void drawBumps(String str) {
-//        mapView.getMap().getMapObjects().addPlacemark(new Point(43.10529, 131.87353), ImageProvider.fromBitmap(drawRedBump()));
-//        mapView.getMap().getMapObjects().addPlacemark(new Point(43.10790, 131.87920), ImageProvider.fromBitmap(drawOrangeBump()));
         if (!str.matches("")) {
             String latitude, longitude, type = "";
             int index = 0;
@@ -448,17 +385,14 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
             float latitudeFloat = Float.parseFloat(latitude);
             float longitudeFloat = Float.parseFloat(longitude);
 
-            if (Integer.parseInt(type) == 1) {
-                mapView.getMap().getMapObjects().addPlacemark(new Point(latitudeFloat, longitudeFloat), ImageProvider.fromBitmap(drawYellowBump()));
-            } else if (Integer.parseInt(type) == 2) {
-                mapView.getMap().getMapObjects().addPlacemark(new Point(latitudeFloat, longitudeFloat), ImageProvider.fromBitmap(drawOrangeBump()));
-            } else if (Integer.parseInt(type) == 3) {
-                mapView.getMap().getMapObjects().addPlacemark(new Point(latitudeFloat, longitudeFloat), ImageProvider.fromBitmap(drawRedBump()));
-            } else System.out.println("Ошибка в drawBumps");
+            mapView.getMap().getMapObjects().addPlacemark(new Point(latitudeFloat, longitudeFloat), ImageProvider.fromBitmap(setBumpColor(Integer.parseInt(type))));
         }
     }
 
     private void sensorBump(float value) {
+        String toastText = "Дорожный дефект отмечен на карте. Тип: ";
+        int toastDuration = Toast.LENGTH_SHORT;
+        final Toast[] toast = new Toast[1];
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Дорожный дефект")
                 .setMessage("Вы проехали неровность?")
@@ -467,24 +401,20 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                       if ((value > 7 || value < -7)) {
-//                          System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//                        submitRequest(new Point(43.10529, 131.87353), new Point(43.10790, 131.87920));
-                        mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(drawRedBump()));
-                        writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), 3);
+                            mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(setBumpColor(BUMP_TYPE_RED)));
+                            writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), BUMP_TYPE_RED);
+                            toast[0] = Toast.makeText(getContext(), toastText + "тяжёлый", toastDuration);
                         } else if ((value > 5 || value < -5)) {
-//                          System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//                          submitRequest(new Point(43.10529, 131.87353), new Point(43.10790, 131.87920));
-
-                            mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(drawOrangeBump()));
-                          writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), 2);
+                              mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(setBumpColor(BUMP_TYPE_ORANGE)));
+                              writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), BUMP_TYPE_ORANGE);
+                              toast[0] = Toast.makeText(getContext(), toastText + "средний", toastDuration);
                       } else if ((value > 2 || value < -2)) {
-//                          System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//                          submitRequest(new Point(43.10529, 131.87353), new Point(43.10790, 131.87920));
-//                          new Point(43.10862, 131.87653)
-                            mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(drawYellowBump()));
-                          writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), 1);
+                          mapView.getMap().getMapObjects().addPlacemark(userLocationLayer.cameraPosition().getTarget(), ImageProvider.fromBitmap(setBumpColor(BUMP_TYPE_YELLOW)));
+                          writeFile(userLocationLayer.cameraPosition().getTarget().getLatitude(), userLocationLayer.cameraPosition().getTarget().getLongitude(), BUMP_TYPE_YELLOW);
+                          toast[0] = Toast.makeText(getContext(), toastText + "лёгкий", toastDuration);
                       }
-                        dialog.cancel();
+                      dialog.cancel();
+                      toast[0].show();
                     }
                 })
                 .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -495,6 +425,14 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                 });
         final AlertDialog dlg = builder.create();
         dlg.show();
+
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                dlg.dismiss();
+                timer.cancel();
+            }
+        }, 3000);
     }
 
     public void moveCameraToPosition(@NonNull Point target) {
@@ -503,7 +441,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                 new Animation(Animation.Type.SMOOTH, 2), null);
     }
 
-    //search
     private void submitQuery(String query) {
         searchSession = searchManager.submit(
                 query,
@@ -546,16 +483,13 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
 
     @Override
     public void onObjectAdded(UserLocationView userLocationView) {
-//        userLocationLayer.setAnchor(
-//                new PointF((float)(mapView.getWidth() * 0.5), (float)(mapView.getHeight() * 0.5)),
-//                new PointF((float)(mapView.getWidth() * 0.5), (float)(mapView.getHeight() * 0.83)));
-
         userLocationView.getArrow().setIcon(ImageProvider.fromResource(
-                getContext(), R.drawable.user_location_arrow));
-
-        readFile();
-
+                getContext(), R.drawable.user_location_arrow), new IconStyle().setAnchor(new PointF(0f, 0f))
+                        .setRotationType(RotationType.ROTATE)
+                        .setZIndex(0f)
+                        .setScale(1f));
         userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
+        readFile();
     }
 
     @Override
@@ -594,7 +528,6 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-//                                        mapObjects = mapView.getMap().getMapObjects().addCollection();
                                         submitRequest(
                                                 userLocationLayer.cameraPosition().getTarget(),
                                                 point
