@@ -309,12 +309,12 @@ public class MapFragment extends Fragment implements UserLocationObjectListener,
                 if (btnSensorOnFlag) {
                     if (flaga) {
                         tvAccMap.setText(String.valueOf((event.values[2] - accelerometerCalibrateValueX)));
-                        if ((event.values[2] < 2 && event.values[2] >= 0) || (event.values[2] > -2 && event.values[2] <= 0)) {
+                        if (((event.values[2] - accelerometerCalibrateValueX) < 2 && (event.values[2] - accelerometerCalibrateValueX) >= 0) || ((event.values[2] - accelerometerCalibrateValueX) > -2 && (event.values[2]- - accelerometerCalibrateValueX) <= 0)) {
                             loopFlagA = false;
                         }
-                        if ((event.values[2] > 2 || event.values[2] < -2) && !loopFlagA) {
+                        if (((event.values[2] - accelerometerCalibrateValueX) > 2 || (event.values[2] - accelerometerCalibrateValueX) < -2) && !loopFlagA) {
                             loopFlagA = true;
-                            sensorBump(event.values[2]);
+                            sensorBump(event.values[2] - accelerometerCalibrateValueX);
                         }
                         flaga = false;
                     }

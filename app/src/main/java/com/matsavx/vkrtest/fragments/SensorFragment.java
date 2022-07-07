@@ -22,8 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vkrtest.R;
-import com.matsavx.vkrtest.database.DBHelper;
-import com.matsavx.vkrtest.database.DbManager;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,7 +51,6 @@ public class SensorFragment extends Fragment {
     private boolean loopFlagA = false;
     private boolean loopFlagG = false;
     private float accelerometerCalibrateValueX = 0;
-    private DbManager dbManager;
 
     private float accToDb;
     private float gyrToDb;
@@ -110,7 +107,7 @@ public class SensorFragment extends Fragment {
 //        DBHelper dbHelper = new DBHelper(getContext());
 //        SQLiteDatabase database = dbHelper.getWritableDatabase();
 //        ContentValues contentValues = new ContentValues();
-        dbManager = new DbManager(getContext());
+//        dbManager = new DbManager(getContext());
 
         TextView tvGX, tvGY, tvGZ, tvAX, tvAY, tvAZ, tvAResult, tvGResult, tvAccDb, tvGyrDb;
         Button btnCalibrateAccelerometer, btnClearSensorCounter, btnInsertToDb;
@@ -229,12 +226,12 @@ public class SensorFragment extends Fragment {
             tvGResult.setText(String.valueOf(countg[0]));
         });
 
-        btnInsertToDb.setOnClickListener(v->{
-            dbManager.insertToDb(accToDb, gyrToDb, 0,0,0);
-            for (float acc : dbManager.getFromDb()) {
-                tvAccDb.append(String.valueOf(acc));
-            }
-        });
+//        btnInsertToDb.setOnClickListener(v->{
+//            dbManager.insertToDb(accToDb, gyrToDb, 0,0,0);
+//            for (float acc : dbManager.getFromDb()) {
+//                tvAccDb.append(String.valueOf(acc));
+//            }
+//        });
 
         return view;
     }
@@ -245,7 +242,7 @@ public class SensorFragment extends Fragment {
         sensorManager.registerListener(gyroscopeSensorEventListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(accelerometerSensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-        dbManager.openDb();
+//        dbManager.openDb();
 
         handler.post(processSensors);
     }

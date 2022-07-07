@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import com.example.vkrtest.R;
 import com.example.vkrtest.databinding.ActivityMainBinding;
-import com.matsavx.vkrtest.configures.ConfProperties;
+//import com.matsavx.vkrtest.configures.ConfProperties;
 import com.matsavx.vkrtest.fragments.HomeFragment;
 import com.matsavx.vkrtest.fragments.MapFragment;
 import com.matsavx.vkrtest.fragments.SensorFragment;
